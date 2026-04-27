@@ -5,9 +5,8 @@ from datetime import datetime
 st.set_page_config(page_title="Portable Solutions Hire", layout="centered")
 
 # Exact file names from your upload
-INVENTORY_FILE = "Master Inventory & Hire Tracker V4 - Portable Solutions - Inventory & Hire Tracker V4.csv"
-PRICE_FILE = "Hire Price Master Sheet List V8 - Portable Solutions Master Hire Price List V8.csv"
-
+INVENTORY_FILE = "inventory.csv"
+PRICE_FILE = "price.csv"
 # Load the files
 inventory_df = pd.read_csv(INVENTORY_FILE)
 
