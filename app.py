@@ -8,7 +8,7 @@ st.set_page_config(page_title="Portable Solutions Hire", layout="centered")
 INVENTORY_FILE = "inventory.csv"
 PRICE_FILE = "price.csv"
 # Load the files
-inventory_df = pd.read_csv(INVENTORY_FILE, encoding="latin1")
+inventory_df = pd.read_csv(INVENTORY_FILE, encoding="latin1", skiprows=2)
 
 st.title("Portable Solutions - Equipment Booking")
 st.write("Select your dates to see available equipment and pricing.")
