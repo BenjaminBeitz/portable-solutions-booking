@@ -23,7 +23,6 @@ except FileNotFoundError:
     st.stop()
 
 # --- PACKAGE MAPPING ---
-# Standalone solar blankets are intentionally left out of this list so they cannot be selected directly.
 PACKAGE_MAP = {
     "800W Power Station Package": ["PS800 Power station", "200w Solar Blanket"],
     "1800W Power Station Package": ["PS1800PRO Power station", "360w solar blanket"],
@@ -33,11 +32,11 @@ PACKAGE_MAP = {
     "75L Fridge/Freezer (Brass Monkey)": ["BM 75L FF"],
     "40L Fridge/Freezer": ["K40LFF"],
     "Air Compressor": ["ItechAC"],
-    "Magnetic Light Bar": ["300Lm Magnetic Light bar"] # Update this backend name if it differs in your actual CSV
+    "Magnetic Light Bar": ["300Lm Magnetic Light bar"]
 }
 
 # --- EMAIL FUNCTION ---
-def send_confirmation_email(customer_name, customer_email, packages_list, hire_days, start_date, end_date):
+def send_confirmation_email(customer_name, customer_email):
     if "EMAIL_USER" not in st.secrets or "EMAIL_PASS" not in st.secrets:
         return
 
@@ -45,34 +44,25 @@ def send_confirmation_email(customer_name, customer_email, packages_list, hire_d
     sender_password = st.secrets["EMAIL_PASS"]
 
     msg = MIMEMultipart()
-    msg['From'] = sender_email
+    msg['From'] = f"Portable Solutions <{sender_email}>"
     msg['To'] = customer_email
-    msg['Subject'] = "Booking Confirmation - Portable Solutions"
+    msg['Subject'] = "Booking Request - Portable Solutions"
     
-    # Join the multiple packages into a readable list
-    equipment_string = "\n    - ".join(packages_list)
+    body = f"""Hi {customer_name},
 
-    body = f"""
-    Hi {customer_name},
+Thank you for your booking with Portable Solutions! Your items have been placed on temporary hold for you. You will be sent a payment link in the next 24hrs to confirm the booking. 
 
-    Thank you for booking with Portable Solutions! Your frictionless off-grid experience is ready to go.
+Please email us or message us on Facebook for any questions you may still have about the equipment or the hire, we are always happy to help.
 
-    Here are your booking details:
-    - Equipment: 
-    - {equipment_string}
-    
-    - Duration: {hire_days} days
-    - Dates: {start_date} to {end_date}
-
-    We will be in touch shortly to organize the final steps. 
-
-    Stay charged,
-    The Portable Solutions Team
-    """
+Stay charged,
+The Portable Solutions Team
+"""
     msg.attach(MIMEText(body, 'plain'))
 
     try:
-        server = smtplib.SMTP('smtp.gmail.com', 587)
+        # NOTE: Change 'smtp.your-email-host.com' to your actual email provider's SMTP server
+        # Examples: smtp.office365.com (Microsoft), smtp.zoho.com.au (Zoho), mail.yourdomain.com (cPanel)
+        server = smtplib.SMTP('smtp.your-email-host.com', 587) 
         server.starttls()
         server.login(sender_email, sender_password)
         text = msg.as_string()
@@ -106,7 +96,6 @@ if start_date and end_date:
         selected_packages = st.multiselect("Select Equipment (Choose as many as you need):", list(PACKAGE_MAP.keys()))
         
         if selected_packages:
-            # Check if ANY of the selected items include a solar blanket
             has_solar = any("200w Solar Blanket" in PACKAGE_MAP[pkg] or "360w solar blanket" in PACKAGE_MAP[pkg] for pkg in selected_packages)
             
             remove_solar = False
@@ -118,13 +107,12 @@ if start_date and end_date:
             for pkg in selected_packages:
                 items = PACKAGE_MAP[pkg].copy()
                 if remove_solar:
-                    # Filter out the blankets if the box is ticked
                     items = [i for i in items if i.lower() not in ["200w solar blanket", "360w solar blanket"]]
                 required_items.extend(items)
             
             missing_items = []
-            available_units = [] # List to store (Item Name, Unit ID)
-            booked_unit_ids = set() # Keeps track of allocated units so we don't double-book the same physical item
+            available_units = [] 
+            booked_unit_ids = set() 
             
             for item in required_items:
                 matches = inventory_df[
@@ -152,20 +140,27 @@ if start_date and end_date:
                     email = st.text_input("Email Address")
                     phone = st.text_input("Phone Number")
                     
+                    st.divider()
+                    st.write("### Hire Agreement")
+                    st.markdown("Please complete the [**Customer Hire Agreement (Click Here)**](https://docs.google.com/forms/d/e/1FAIpQLSd2bfpED_4WQzpkR4BYuIfpc9V8V_GfKohniY83F-A3bSIMzw/viewform?usp=header) before confirming your booking.")
+                    agreement_ticked = st.checkbox("I have submitted the Customer Hire Agreement via the link above.")
+                    
                     submit = st.form_submit_button("Confirm Booking")
                     
                     if submit:
-                        if name and email and phone:
-                            st.success("Booking Confirmed!")
+                        if not agreement_ticked:
+                            st.error("You must complete and tick the Customer Hire Agreement to submit your booking.")
+                        elif name and email and phone:
+                            st.success("Booking Request Submitted!")
                             
-                            st.write("**The following specific units have been allocated to your hire:**")
+                            st.write("**The following specific units have been placed on hold for your hire:**")
                             for item, unit_id in available_units:
                                 st.write(f"- {item} (Unit ID: {unit_id})")
                                 
                             st.write(f"An instant confirmation has been sent to **{email}**.")
                             st.balloons()
                             
-                            send_confirmation_email(name, email, selected_packages, hire_days, start_date.strftime("%d/%m/%Y"), end_date.strftime("%d/%m/%Y"))
+                            send_confirmation_email(name, email)
                             
                         else:
                             st.error("Please fill out all contact details to confirm.")
