@@ -60,7 +60,7 @@ The Portable Solutions Team
     msg.attach(MIMEText(body, 'plain'))
 
     try:
-        # Changed back to the Google Server
+        # Google Server
         server = smtplib.SMTP('smtp.gmail.com', 587) 
         server.starttls()
         server.login(sender_email, sender_password)
