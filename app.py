@@ -8,6 +8,52 @@ from email.mime.multipart import MIMEMultipart
 # --- CONFIGURATION ---
 st.set_page_config(page_title="Portable Solutions Equipment Booking", layout="centered")
 
+# --- CUSTOM CSS STYLING ---
+st.markdown("""
+<style>
+    /* Import League Spartan and Oswald (as a backup for Norwester) from Google Fonts */
+    @import url('https://fonts.googleapis.com/css2?family=League+Spartan:wght@300;400;600&family=Oswald:wght@600&display=swap');
+
+    /* 1. Make the background transparent and set League Spartan as the default for EVERYTHING */
+    html, body, [class*="css"], p, span, div, label, li {
+        font-family: 'League Spartan', sans-serif !important;
+        background-color: transparent !important; 
+    }
+    
+    /* 2. Create a special class just for your Norwester headings */
+    .norwester-heading {
+        font-family: 'Norwester', 'Oswald', sans-serif !important;
+        text-transform: uppercase;
+        color: #2C3E50; /* Feel free to change this hex code to your exact brand color */
+        margin-bottom: 0.5rem;
+        margin-top: 1rem;
+    }
+    
+    /* Style the main title slightly larger */
+    .main-title {
+        font-size: 2.5rem;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+    
+    /* Make the Streamlit submit button match the branding */
+    .stButton>button {
+        font-family: 'League Spartan', sans-serif !important;
+        font-weight: 600;
+        background-color: #2C3E50;
+        color: white;
+        border-radius: 5px;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# --- LOGO DISPLAY ---
+try:
+    st.image("logo.png", width=250) 
+except:
+    pass
+
 INVENTORY_FILE = "inventory.csv"
 PRICE_FILE = "price.csv"
 
@@ -60,7 +106,6 @@ The Portable Solutions Team
     msg.attach(MIMEText(body, 'plain'))
 
     try:
-        # Google Server
         server = smtplib.SMTP('smtp.gmail.com', 587) 
         server.starttls()
         server.login(sender_email, sender_password)
@@ -71,7 +116,10 @@ The Portable Solutions Team
         st.error(f"Failed to send email. Error: {e}")
 
 # --- FRONT END APP ---
-st.title("Portable Solutions - Equipment Booking")
+
+# Using our custom HTML class for the main title instead of st.title()
+st.markdown("<div class='norwester-heading main-title'>Portable Solutions - Equipment Booking</div>", unsafe_allow_html=True)
+
 st.write("Confirm Availability and Place a hold on your gear! Availability is based on a first to pay basis. Please Complete the Customer Hire Agreement and Hire Terms below, your gear will then be placed on temporary hold for you for 24 hours. Shortly after completing the Hire Agreement you will be sent a Payment link to confirm the booking.")
 
 st.divider()
@@ -90,7 +138,6 @@ if start_date and end_date:
     else:
         st.success(f"**Total Hire Duration:** {hire_days} days")
         
-        # --- MULTI-ITEM SELECTION ---
         selected_packages = st.multiselect("Select Equipment (Choose as many as you need):", list(PACKAGE_MAP.keys()))
         
         if selected_packages:
@@ -100,7 +147,6 @@ if start_date and end_date:
             if has_solar:
                 remove_solar = st.checkbox("Remove Solar Blanket(s) from my selected power stations", value=False)
             
-            # --- AGGREGATE INVENTORY CHECK ---
             required_items = []
             for pkg in selected_packages:
                 items = PACKAGE_MAP[pkg].copy()
@@ -131,14 +177,19 @@ if start_date and end_date:
             else:
                 st.info("✓ All selected equipment is available!")
                 
-                # --- BOOKING FORM ---
                 with st.form("booking_form"):
-                    st.write("### Customer Details")
+                    
+                    # Using custom HTML for the Customer Details heading
+                    st.markdown("<h3 class='norwester-heading'>Customer Details</h3>", unsafe_allow_html=True)
+                    
                     name = st.text_input("Full Name")
                     email = st.text_input("Email Address")
                     
                     st.divider()
-                    st.write("### Hire Agreement Verification")
+                    
+                    # Using custom HTML for the Hire Agreement Verification heading
+                    st.markdown("<h3 class='norwester-heading'>Hire Agreement Verification</h3>", unsafe_allow_html=True)
+                    
                     st.markdown("Step 1. Click here to complete the **[Customer Hire Agreement](https://docs.google.com/forms/d/e/1FAIpQLSd2bfpED_4WQzpkR4BYuIfpc9V8V_GfKohniY83F-A3bSIMzw/viewform?usp=header)**.")
                     st.markdown("Step 2. After clicking submit on the agreement, copy the confirmation code shown on the screen and paste it below.")
                     
@@ -152,7 +203,9 @@ if start_date and end_date:
                         elif name and email:
                             st.success("Gear Placed on Hold!")
                             
-                            st.write("**The following specific units have been temporarily reserved for you:**")
+                            # Using custom HTML for the reserved units heading
+                            st.markdown("<p class='norwester-heading' style='font-size: 1.1rem;'>The following specific units have been temporarily reserved for you:</p>", unsafe_allow_html=True)
+                            
                             for item, unit_id in available_units:
                                 st.write(f"- {item} (Unit ID: {unit_id})")
                                 
