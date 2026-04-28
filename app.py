@@ -24,10 +24,10 @@ except FileNotFoundError:
 
 # --- PACKAGE MAPPING ---
 PACKAGE_MAP = {
-    "800W Power Station Package": ["PS800 Power station", "200w Solar Blanket"],
-    "1800W Power Station Package": ["PS1800PRO Power station", "360w solar blanket"],
-    "1800W Expanded (Double Capacity)": ["PS1800PRO Power station", "EB1536 Expansion pack", "360w solar blanket"],
-    "2000W Power Station Package": ["PS2000w Power station", "360w solar blanket"],
+    "800W Power Station & 200W Solar Blanket Package": ["PS800 Power station", "200w Solar Blanket"],
+    "1800W Power Station & 360W Solar Blanket Package": ["PS1800PRO Power station", "360w solar blanket"],
+    "1800W Expanded & 360W Solar Blanket Package (Double Capacity)": ["PS1800PRO Power station", "EB1536 Expansion pack", "360w solar blanket"],
+    "2000W Power Station & 360W Solar Blanket Package": ["PS2000w Power station", "360w solar blanket"],
     "75L Fridge/Freezer (Kings)": ["K 75L FF"],
     "75L Fridge/Freezer (Brass Monkey)": ["BM 75L FF"],
     "40L Fridge/Freezer": ["K40LFF"],
@@ -48,6 +48,7 @@ def send_confirmation_email(customer_name, customer_email):
     msg['To'] = customer_email
     msg['Subject'] = "Booking Request - Portable Solutions"
     
+    # TO CHANGE THE EMAIL MESSAGE, EDIT THE TEXT BELOW THIS LINE:
     body = f"""Hi {customer_name},
 
 Thank you for your booking with Portable Solutions! Your items have been placed on temporary hold for you. You will be sent a payment link in the next 24hrs to confirm the booking. 
@@ -60,9 +61,7 @@ The Portable Solutions Team
     msg.attach(MIMEText(body, 'plain'))
 
     try:
-        # NOTE: Change 'smtp.your-email-host.com' to your actual email provider's SMTP server
-        # Examples: smtp.office365.com (Microsoft), smtp.zoho.com.au (Zoho), mail.yourdomain.com (cPanel)
-        server = smtplib.SMTP('smtp.your-email-host.com', 587) 
+        server = smtplib.SMTP('smtp.office365.com', 587) 
         server.starttls()
         server.login(sender_email, sender_password)
         text = msg.as_string()
@@ -73,8 +72,7 @@ The Portable Solutions Team
 
 # --- FRONT END APP ---
 st.title("Portable Solutions - Equipment Booking")
-st.write("Servicing Nollamara, Balcatta, and the wider Perth region.")
-st.write("Select your dates below to build your off-grid package.")
+st.write("Confirm Availability and Place a hold on your gear! Availability is based on a first to pay basis. Please Complete the Customer Hire Agreement and Hire Terms below, your gear will then be placed on temporary hold for you for 24 hours. Shortly after completing the Hire Agreement you will be sent a Payment link to confirm the booking.")
 
 st.divider()
 
@@ -96,7 +94,7 @@ if start_date and end_date:
         selected_packages = st.multiselect("Select Equipment (Choose as many as you need):", list(PACKAGE_MAP.keys()))
         
         if selected_packages:
-            has_solar = any("200w Solar Blanket" in PACKAGE_MAP[pkg] or "360w solar blanket" in PACKAGE_MAP[pkg] for pkg in selected_packages)
+            has_solar = any("200W Solar Blanket" in pkg or "360W Solar Blanket" in pkg for pkg in selected_packages)
             
             remove_solar = False
             if has_solar:
@@ -138,29 +136,30 @@ if start_date and end_date:
                     st.write("### Customer Details")
                     name = st.text_input("Full Name")
                     email = st.text_input("Email Address")
-                    phone = st.text_input("Phone Number")
                     
                     st.divider()
-                    st.write("### Hire Agreement")
-                    st.markdown("Please complete the [**Customer Hire Agreement (Click Here)**](https://docs.google.com/forms/d/e/1FAIpQLSd2bfpED_4WQzpkR4BYuIfpc9V8V_GfKohniY83F-A3bSIMzw/viewform?usp=header) before confirming your booking.")
-                    agreement_ticked = st.checkbox("I have submitted the Customer Hire Agreement via the link above.")
+                    st.write("### Hire Agreement Verification")
+                    st.markdown("Step 1. Click here to complete the **[Customer Hire Agreement](https://docs.google.com/forms/d/e/1FAIpQLSd2bfpED_4WQzpkR4BYuIfpc9V8V_GfKohniY83F-A3bSIMzw/viewform?usp=header)**.")
+                    st.markdown("Step 2. After clicking submit on the agreement, copy the confirmation code shown on the screen and paste it below.")
                     
-                    submit = st.form_submit_button("Confirm Booking")
+                    agreement_code = st.text_input("Confirmation Code")
+                    
+                    submit = st.form_submit_button("Place on Hold")
                     
                     if submit:
-                        if not agreement_ticked:
-                            st.error("You must complete and tick the Customer Hire Agreement to submit your booking.")
-                        elif name and email and phone:
-                            st.success("Booking Request Submitted!")
+                        if agreement_code.strip().upper() != "PS-HIRE-24":
+                            st.error("Invalid Code. You must complete the Customer Hire Agreement to receive the correct confirmation code.")
+                        elif name and email:
+                            st.success("Gear Placed on Hold!")
                             
-                            st.write("**The following specific units have been placed on hold for your hire:**")
+                            st.write("**The following specific units have been temporarily reserved for you:**")
                             for item, unit_id in available_units:
                                 st.write(f"- {item} (Unit ID: {unit_id})")
                                 
-                            st.write(f"An instant confirmation has been sent to **{email}**.")
+                            st.write("We will review your Hire Agreement and send a payment link to your email shortly.")
                             st.balloons()
                             
+                            # Trigger the email courier
                             send_confirmation_email(name, email)
-                            
                         else:
-                            st.error("Please fill out all contact details to confirm.")
+                            st.error("Please fill out your Name and Email Address to receive your booking confirmation.")
