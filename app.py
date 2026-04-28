@@ -48,7 +48,6 @@ def send_confirmation_email(customer_name, customer_email):
     msg['To'] = customer_email
     msg['Subject'] = "Booking Request - Portable Solutions"
     
-    # TO CHANGE THE EMAIL MESSAGE, EDIT THE TEXT BELOW THIS LINE:
     body = f"""Hi {customer_name},
 
 Thank you for your booking with Portable Solutions! Your items have been placed on temporary hold for you. You will be sent a payment link in the next 24hrs to confirm the booking. 
@@ -61,7 +60,8 @@ The Portable Solutions Team
     msg.attach(MIMEText(body, 'plain'))
 
     try:
-        server = smtplib.SMTP('smtp.office365.com', 587) 
+        # Changed back to the Google Server
+        server = smtplib.SMTP('smtp.gmail.com', 587) 
         server.starttls()
         server.login(sender_email, sender_password)
         text = msg.as_string()
@@ -159,7 +159,6 @@ if start_date and end_date:
                             st.write("We will review your Hire Agreement and send a payment link to your email shortly.")
                             st.balloons()
                             
-                            # Trigger the email courier
                             send_confirmation_email(name, email)
                         else:
                             st.error("Please fill out your Name and Email Address to receive your booking confirmation.")
