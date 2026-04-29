@@ -4,68 +4,76 @@ from datetime import datetime
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import json
+import gspread
+from google.oauth2.service_account import Credentials
 
 # --- CONFIGURATION ---
 st.set_page_config(page_title="Portable Solutions Equipment Booking", layout="centered")
 
-# --- CUSTOM CSS STYLING ---
+# PASTE YOUR GOOGLE SHEET LINK HERE:
+https://docs.google.com/spreadsheets/d/1Wi25qD5JnjFBU2nnwYfCdu2Zu6NvzzYhDjS-dcdyO9k/edit?usp=sharing
+# --- BRAND STYLING ---
 st.markdown("""
 <style>
-    /* Import League Spartan and Oswald (as a backup for Norwester) from Google Fonts */
     @import url('https://fonts.googleapis.com/css2?family=League+Spartan:wght@300;400;600&family=Oswald:wght@600&display=swap');
 
-    /* 1. Make the background transparent and set League Spartan as the default for EVERYTHING */
     html, body, [class*="css"], p, span, div, label, li {
         font-family: 'League Spartan', sans-serif !important;
         background-color: transparent !important; 
     }
-    
-    /* 2. Create a special class just for your Norwester headings */
     .norwester-heading {
         font-family: 'Norwester', 'Oswald', sans-serif !important;
         text-transform: uppercase;
-        color: #2C3E50; /* Feel free to change this hex code to your exact brand color */
+        color: #2C3E50; 
         margin-bottom: 0.5rem;
         margin-top: 1rem;
     }
-    
-    /* Style the main title slightly larger */
     .main-title {
         font-size: 2.5rem;
         font-weight: bold;
         text-align: center;
         margin-bottom: 1rem;
     }
-    
-    /* Make the Streamlit submit button match the branding */
     .stButton>button {
         font-family: 'League Spartan', sans-serif !important;
         font-weight: 600;
-        background-color: #2C3E50;
+        background-color: #FF5722; /* Deep Orange */
         color: white;
         border-radius: 5px;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# --- LOGO DISPLAY ---
 try:
     st.image("logo.png", width=250) 
 except:
     pass
 
-INVENTORY_FILE = "inventory.csv"
-PRICE_FILE = "price.csv"
+# --- LIVE GOOGLE SHEETS CONNECTION ---
+# This function logs into Google, opens your sheet, and pulls the live data
+def get_live_sheet():
+    creds_dict = json.loads(st.secrets["GCP_JSON"])
+    scopes = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
+    creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)
+    client = gspread.authorize(creds)
+    
+    # Opens the first tab of your Google Sheet
+    sheet = client.open_by_url(SHEET_URL).sheet1
+    return sheet
 
-# --- DATA LOADING ---
-@st.cache_data
+@st.cache_data(ttl=30) # Refreshes the snapshot every 30 seconds to catch live changes
 def load_inventory():
-    return pd.read_csv(INVENTORY_FILE, encoding="latin1", skiprows=2)
+    sheet = get_live_sheet()
+    data = sheet.get_all_values()
+    # Grabs row 3 as titles, and row 4 downwards as the data
+    df = pd.DataFrame(data[3:], columns=data[2])
+    return df
 
 try:
     inventory_df = load_inventory()
-except FileNotFoundError:
-    st.error("Error: Cannot find 'inventory.csv' in the system.")
+except Exception as e:
+    st.error(f"Could not connect to Google Sheets. Please ensure your SHEET_URL is correct and the bot email is shared as an Editor. Error: {e}")
     st.stop()
 
 # --- PACKAGE MAPPING ---
@@ -85,15 +93,12 @@ PACKAGE_MAP = {
 def send_confirmation_email(customer_name, customer_email):
     if "EMAIL_USER" not in st.secrets or "EMAIL_PASS" not in st.secrets:
         return
-
     sender_email = st.secrets["EMAIL_USER"]
     sender_password = st.secrets["EMAIL_PASS"]
-
     msg = MIMEMultipart()
     msg['From'] = f"Portable Solutions <{sender_email}>"
     msg['To'] = customer_email
     msg['Subject'] = "Booking Request - Portable Solutions"
-    
     body = f"""Hi {customer_name},
 
 Thank you for your booking with Portable Solutions! Your items have been placed on temporary hold for you. You will be sent a payment link in the next 24hrs to confirm the booking. 
@@ -104,7 +109,6 @@ Stay charged,
 The Portable Solutions Team
 """
     msg.attach(MIMEText(body, 'plain'))
-
     try:
         server = smtplib.SMTP('smtp.gmail.com', 587) 
         server.starttls()
@@ -113,15 +117,11 @@ The Portable Solutions Team
         server.sendmail(sender_email, customer_email, text)
         server.quit()
     except Exception as e:
-        st.error(f"Failed to send email. Error: {e}")
+        pass
 
 # --- FRONT END APP ---
-
-# Using our custom HTML class for the main title instead of st.title()
 st.markdown("<div class='norwester-heading main-title'>Portable Solutions - Equipment Booking</div>", unsafe_allow_html=True)
-
 st.write("Confirm Availability and Place a hold on your gear! Availability is based on a first to pay basis. Please Complete the Customer Hire Agreement and Hire Terms below, your gear will then be placed on temporary hold for you for 24 hours. Shortly after completing the Hire Agreement you will be sent a Payment link to confirm the booking.")
-
 st.divider()
 
 col1, col2 = st.columns(2)
@@ -142,7 +142,6 @@ if start_date and end_date:
         
         if selected_packages:
             has_solar = any("200W Solar Blanket" in pkg or "360W Solar Blanket" in pkg for pkg in selected_packages)
-            
             remove_solar = False
             if has_solar:
                 remove_solar = st.checkbox("Remove Solar Blanket(s) from my selected power stations", value=False)
@@ -178,40 +177,48 @@ if start_date and end_date:
                 st.info("✓ All selected equipment is available!")
                 
                 with st.form("booking_form"):
-                    
-                    # Using custom HTML for the Customer Details heading
                     st.markdown("<h3 class='norwester-heading'>Customer Details</h3>", unsafe_allow_html=True)
-                    
                     name = st.text_input("Full Name")
                     email = st.text_input("Email Address")
                     
                     st.divider()
-                    
-                    # Using custom HTML for the Hire Agreement Verification heading
                     st.markdown("<h3 class='norwester-heading'>Hire Agreement Verification</h3>", unsafe_allow_html=True)
-                    
                     st.markdown("Step 1. Click here to complete the **[Customer Hire Agreement](https://docs.google.com/forms/d/e/1FAIpQLSd2bfpED_4WQzpkR4BYuIfpc9V8V_GfKohniY83F-A3bSIMzw/viewform?usp=header)**.")
                     st.markdown("Step 2. After clicking submit on the agreement, copy the confirmation code shown on the screen and paste it below.")
                     
                     agreement_code = st.text_input("Confirmation Code")
-                    
                     submit = st.form_submit_button("Place on Hold")
                     
                     if submit:
                         if agreement_code.strip().upper() != "PS-HIRE-24":
                             st.error("Invalid Code. You must complete the Customer Hire Agreement to receive the correct confirmation code.")
                         elif name and email:
-                            st.success("Gear Placed on Hold!")
-                            
-                            # Using custom HTML for the reserved units heading
-                            st.markdown("<p class='norwester-heading' style='font-size: 1.1rem;'>The following specific units have been temporarily reserved for you:</p>", unsafe_allow_html=True)
-                            
-                            for item, unit_id in available_units:
-                                st.write(f"- {item} (Unit ID: {unit_id})")
+                            # --- WRITE TO GOOGLE SHEETS LIVE ---
+                            try:
+                                live_sheet = get_live_sheet()
+                                for item, unit_id in available_units:
+                                    # Tells the bot to find the exact Unit ID cell on your sheet
+                                    cell = live_sheet.find(unit_id)
+                                    # Updates Column 4 (Status) to Booked
+                                    live_sheet.update_cell(cell.row, 4, "Booked")
+                                    # Updates Column 5 (Date) to the end date
+                                    live_sheet.update_cell(cell.row, 5, end_date.strftime("%d/%m/%Y"))
                                 
-                            st.write("We will review your Hire Agreement and send a payment link to your email shortly.")
-                            st.balloons()
+                                # Clears the app's cache so it instantly pulls the new 'Booked' data
+                                st.cache_data.clear()
+                                
+                                st.success("Gear Placed on Hold!")
+                                st.markdown("<p class='norwester-heading' style='font-size: 1.1rem;'>The following specific units have been temporarily reserved for you:</p>", unsafe_allow_html=True)
+                                
+                                for item, unit_id in available_units:
+                                    st.write(f"- {item} (Unit ID: {unit_id})")
+                                    
+                                st.write("We will review your Hire Agreement and send a payment link to your email shortly.")
+                                st.balloons()
+                                send_confirmation_email(name, email)
                             
-                            send_confirmation_email(name, email)
+                            except Exception as e:
+                                st.error(f"There was an issue communicating with Google Sheets. Error: {e}")
+                                
                         else:
                             st.error("Please fill out your Name and Email Address to receive your booking confirmation.")
