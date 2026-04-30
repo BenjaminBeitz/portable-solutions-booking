@@ -15,7 +15,7 @@ st.set_page_config(page_title="Portable Solutions Equipment Booking", layout="ce
 SHEET_URL = "https://docs.google.com/spreadsheets/d/1lbOEvMT-5TjrMNqWiP_4qHAeL_zM0ghtNKngoTNEDVs/edit?usp=sharing"
 
 # PASTE YOUR NEW GITHUB LOGO IMAGE LINK HERE:
-LOGO_URL = "PASTE_YOUR_COPIED_IMAGE_ADDRESS_HERE"
+LOGO_URL = "https://github.com/BenjaminBeitz/portable-solutions-booking/blob/main/logo.png?raw=true"
 
 # --- BRAND STYLING & STICKY HEADER ---
 st.markdown("""
