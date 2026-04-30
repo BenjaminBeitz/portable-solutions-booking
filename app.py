@@ -14,10 +14,44 @@ st.set_page_config(page_title="Portable Solutions Equipment Booking", layout="ce
 # PASTE YOUR GOOGLE SHEET LINK HERE:
 SHEET_URL = "https://docs.google.com/spreadsheets/d/1lbOEvMT-5TjrMNqWiP_4qHAeL_zM0ghtNKngoTNEDVs/edit?usp=sharing"
 
-# --- BRAND STYLING ---
+# PASTE YOUR NEW GITHUB LOGO IMAGE LINK HERE:
+LOGO_URL = "PASTE_YOUR_COPIED_IMAGE_ADDRESS_HERE"
+
+# --- BRAND STYLING & STICKY HEADER ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=League+Spartan:wght@300;400;600&family=Oswald:wght@600&display=swap');
+
+    /* 1. STICKY BLACK HEADER BAR */
+    .sticky-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: #000000; /* Solid Black Band */
+        z-index: 99999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 15px 0;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5); /* Adds a slight 3D shadow under the black bar */
+    }
+    
+    .sticky-header img {
+        max-height: 70px; /* Keeps the thin logo proportional so it fits inside the band */
+        width: auto;
+        max-width: 90%;
+    }
+
+    /* 2. Push the app down so the form doesn't hide behind the sticky header */
+    .block-container {
+        padding-top: 120px !important; 
+    }
+    
+    /* 3. Hide Streamlit's default top white line */
+    header[data-testid="stHeader"] {
+        display: none !important;
+    }
 
     /* Deep Orange Background */
     .stApp, html, body {
@@ -82,13 +116,12 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- LOGO DISPLAY ---
-colA, colB, colC = st.columns([1, 4, 1])
-with colB:
-    try:
-        st.image("logo.png", use_container_width=True) 
-    except:
-        pass
+# This physically places the sticky header at the top of the app using your Logo URL
+st.markdown(f"""
+<div class="sticky-header">
+    <img src="{LOGO_URL}" alt="Portable Solutions Logo">
+</div>
+""", unsafe_allow_html=True)
 
 # --- LIVE GOOGLE SHEETS CONNECTION ---
 def get_live_sheet():
