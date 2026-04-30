@@ -18,6 +18,7 @@ SHEET_URL = "https://docs.google.com/spreadsheets/d/1Wi25qD5JnjFBU2nnwYfCdu2Zu6N
 LOGO_URL = "https://github.com/BenjaminBeitz/portable-solutions-booking/blob/main/logo.png?raw=true"
 
 # --- BRAND STYLING & STICKY HEADER ---
+# --- BRAND STYLING & STICKY HEADER ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=League+Spartan:wght@300;400;600&family=Oswald:wght@600&display=swap');
@@ -28,17 +29,17 @@ st.markdown("""
         top: 0;
         left: 0;
         width: 100%;
-        background-color: #000000; /* Solid Black Band */
+        background-color: #000000; 
         z-index: 99999;
         display: flex;
         justify-content: center;
         align-items: center;
         padding: 15px 0;
-        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5); /* Adds a slight 3D shadow under the black bar */
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5); 
     }
     
     .sticky-header img {
-        max-height: 70px; /* Keeps the thin logo proportional so it fits inside the band */
+        max-height: 70px; 
         width: auto;
         max-width: 90%;
     }
@@ -112,6 +113,28 @@ st.markdown("""
     span[data-baseweb="tag"] {
         background-color: #0A192F !important;
         color: #FFFFFF !important;
+    }
+
+    /* --- NEW: CALENDAR FIX --- */
+    /* Target the pop-up calendar box specifically */
+    div[data-baseweb="calendar"] {
+        background-color: #0A192F !important; /* Navy background */
+        padding: 5px;
+        border-radius: 8px;
+    }
+    /* Force the days and dates to be white */
+    div[data-baseweb="calendar"] * {
+        color: #FFFFFF !important; 
+    }
+    /* Make the selected date pop in Deep Orange */
+    div[data-baseweb="calendar"] [aria-selected="true"] {
+        background-color: #FF5722 !important; 
+        color: #FFFFFF !important;
+        font-weight: bold;
+    }
+    /* Fix the little left/right month arrows */
+    div[data-baseweb="calendar"] svg {
+        fill: #FFFFFF !important;
     }
 </style>
 """, unsafe_allow_html=True)
