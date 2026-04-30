@@ -19,17 +19,22 @@ st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=League+Spartan:wght@300;400;600&family=Oswald:wght@600&display=swap');
 
-    /* Changed from transparent to a clean, solid white background */
-    html, body, [class*="css"], p, span, div, label, li {
-        font-family: 'League Spartan', sans-serif !important;
-        background-color: #FFFFFF !important; 
-        color: #1E1E1E !important; /* Makes sure the text is a highly readable dark grey/black */
+    /* 1. Deep Orange Background for the entire app */
+    .stApp, html, body {
+        background-color: #FF5722 !important; /* Deep Orange */
     }
     
+    /* 2. Deep Navy Blue for ALL standard text */
+    html, body, [class*="css"], p, span, div, label, li {
+        font-family: 'League Spartan', sans-serif !important;
+        color: #0A192F !important; /* Deep Navy Blue */
+    }
+    
+    /* 3. Norwester Headings in Deep Navy Blue */
     .norwester-heading {
         font-family: 'Norwester', 'Oswald', sans-serif !important;
         text-transform: uppercase;
-        color: #2C3E50; 
+        color: #0A192F !important; 
         margin-bottom: 0.5rem;
         margin-top: 1rem;
     }
@@ -39,14 +44,39 @@ st.markdown("""
         font-weight: bold;
         text-align: center;
         margin-bottom: 1rem;
+        color: #0A192F !important;
     }
     
+    /* 4. White Features (The Button) */
     .stButton>button {
         font-family: 'League Spartan', sans-serif !important;
-        font-weight: 600;
-        background-color: #FF5722; /* Deep Orange */
-        color: white !important;
+        font-weight: 800;
+        background-color: #FFFFFF !important; /* White Button */
+        color: #0A192F !important; /* Navy text on the button */
+        border: 2px solid #0A192F !important;
         border-radius: 5px;
+    }
+    
+    /* Optional: Makes the button flip colors when hovered over */
+    .stButton>button:hover {
+        background-color: #0A192F !important;
+        color: #FFFFFF !important;
+        border-color: #FFFFFF !important;
+    }
+
+    /* 5. White Features (Input Boxes and Dropdowns) */
+    .stTextInput>div>div>input, 
+    .stDateInput>div>div>input,
+    div[data-baseweb="select"] > div {
+        background-color: #FFFFFF !important; /* White boxes so you can read typing */
+        color: #0A192F !important;
+        border: 1px solid #0A192F !important;
+    }
+
+    /* Ensures the selected items in the dropdown are Navy with White text so they pop */
+    span[data-baseweb="tag"] {
+        background-color: #0A192F !important;
+        color: #FFFFFF !important;
     }
 </style>
 """, unsafe_allow_html=True)
