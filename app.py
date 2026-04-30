@@ -12,41 +12,31 @@ from google.oauth2.service_account import Credentials
 st.set_page_config(page_title="Portable Solutions Equipment Booking", layout="centered")
 
 # PASTE YOUR GOOGLE SHEET LINK HERE:
-SHEET_URL = "https://docs.google.com/spreadsheets/d/1Wi25qD5JnjFBU2nnwYfCdu2Zu6NvzzYhDjS-dcdyO9k/edit?usp=sharing"
+SHEET_URL = "https://docs.google.com/spreadsheets/d/1lbOEvMT-5TjrMNqWiP_4qHAeL_zM0ghtNKngoTNEDVs/edit?usp=sharing"
 
 # PASTE YOUR NEW RAW GITHUB LOGO IMAGE LINK HERE:
-LOGO_URL = "https://github.com/BenjaminBeitz/portable-solutions-booking/blob/main/logo.png?raw=true"
+LOGO_URL = "PASTE_YOUR_RAW_IMAGE_ADDRESS_HERE"
 
 # --- BRAND STYLING & STICKY HEADER ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=League+Spartan:wght@300;400;600&family=Oswald:wght@600&display=swap');
 
-    /* 1. STICKY BLACK HEADER BAR */
+    /* STICKY BLACK HEADER BAR */
     .sticky-header {
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
+        top: 0; left: 0; width: 100%;
         background-color: #000000; 
         z-index: 99999;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        display: flex; justify-content: center; align-items: center;
         padding: 15px 0;
         box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5); 
     }
-    
-    .sticky-header img {
-        max-height: 70px; 
-        width: auto;
-        max-width: 90%;
-    }
-
+    .sticky-header img { max-height: 70px; width: auto; max-width: 90%; }
     .block-container { padding-top: 120px !important; }
     header[data-testid="stHeader"] { display: none !important; }
 
-    /* Deep Orange Background & Global Navy Text */
+    /* GLOBAL BACKGROUND & TEXT */
     .stApp, html, body { background-color: #FF5722 !important; }
     html, body, [class*="css"], p, span, div, label, li {
         font-family: 'League Spartan', sans-serif !important;
@@ -57,107 +47,88 @@ st.markdown("""
         font-family: 'Norwester', 'Oswald', sans-serif !important;
         text-transform: uppercase;
         color: #0A192F !important; 
-        margin-bottom: 0.5rem;
-        margin-top: 1rem;
+        margin-bottom: 0.5rem; margin-top: 1rem;
     }
     
     .main-title {
-        font-size: 2.5rem;
-        font-weight: bold;
-        text-align: center;
-        margin-bottom: 1rem;
-        color: #0A192F !important;
+        font-size: 2.5rem; font-weight: bold; text-align: center;
+        margin-bottom: 1rem; color: #0A192F !important;
     }
-    
-    /* --- THE AUDITED COLOR RULES --- */
 
-    /* ACTION BUTTONS: Initial White -> Flip to Navy on Action */
-    .stButton>button {
+    /* --- BULLETPROOF ACTION BUTTONS --- */
+    /* Target every possible button layer */
+    .stButton > button, div[data-testid="stFormSubmitButton"] > button {
         background-color: #FFFFFF !important; 
-        color: #0A192F !important; 
         border: 2px solid #0A192F !important;
         border-radius: 5px;
-        font-weight: 800;
     }
-    .stButton>button p {
+    /* Force inner text to be Navy */
+    .stButton > button *, div[data-testid="stFormSubmitButton"] > button * {
         color: #0A192F !important; 
+        font-weight: 800 !important;
     }
-    .stButton>button:hover, .stButton>button:active {
+    /* Hover State: Flip to Navy Background */
+    .stButton > button:hover, .stButton > button:active, 
+    div[data-testid="stFormSubmitButton"] > button:hover, div[data-testid="stFormSubmitButton"] > button:active {
         background-color: #0A192F !important;
         border-color: #0A192F !important;
     }
-    .stButton>button:hover p, .stButton>button:active p {
+    /* Hover State: Flip inner text to White */
+    .stButton > button:hover *, .stButton > button:active *,
+    div[data-testid="stFormSubmitButton"] > button:hover *, div[data-testid="stFormSubmitButton"] > button:active * {
         color: #FFFFFF !important;
     }
 
-    /* INPUT BOXES INITIAL STATE: White background, Navy text */
+    /* --- INPUT BOXES (NAME, EMAIL, CODE) --- */
     .stTextInput input, .stDateInput input, div[data-baseweb="select"] > div {
         background-color: #FFFFFF !important; 
-        color: #0A192F !important; 
-        -webkit-text-fill-color: #0A192F !important; 
         border: 2px solid #0A192F !important;
         border-radius: 5px;
         font-weight: 600; 
+        color: #0A192F !important; 
+        -webkit-text-fill-color: #0A192F !important; 
+    }
+    
+    /* The explicitly visible placeholder text (Before they type) */
+    .stTextInput input::placeholder {
+        color: rgba(10, 25, 47, 0.7) !important; /* Slightly faded Navy */
+        -webkit-text-fill-color: rgba(10, 25, 47, 0.7) !important;
     }
 
-    /* TEXT INPUT FILLED STATE: Flip to Navy background, White text */
+    /* Filled State: When they actually type something */
     .stTextInput input:not(:placeholder-shown) {
         background-color: #0A192F !important;
         color: #FFFFFF !important;
         -webkit-text-fill-color: #FFFFFF !important;
     }
 
-    /* SELECTED GEAR BUBBLES: Strictly Navy with White Text */
-    span[data-baseweb="tag"] {
-        background-color: #0A192F !important;
-    }
+    /* --- SELECTED GEAR BUBBLES --- */
+    span[data-baseweb="tag"] { background-color: #0A192F !important; }
     span[data-baseweb="tag"] span {
-        color: #FFFFFF !important;
-        -webkit-text-fill-color: #FFFFFF !important;
+        color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important;
     }
-    span[data-baseweb="tag"] svg {
-        fill: #FFFFFF !important;
-    }
+    span[data-baseweb="tag"] svg { fill: #FFFFFF !important; }
 
-    /* --- THE NEW DROPDOWN FIX (CRISP WHITE WITH NAVY TEXT) --- */
-    /* Target the floating dropdown list background */
-    div[data-baseweb="popover"] div, ul[role="listbox"] {
-        background-color: #FFFFFF !important; /* Crisp White Background */
-    }
-    /* Make the text Navy for the items */
+    /* --- DROPDOWN LIST & CALENDAR --- */
+    div[data-baseweb="popover"] div, ul[role="listbox"] { background-color: #FFFFFF !important; }
     li[role="option"] {
         background-color: #FFFFFF !important;
-        color: #0A192F !important; /* Deep Navy Text */
-        -webkit-text-fill-color: #0A192F !important;
+        color: #0A192F !important; -webkit-text-fill-color: #0A192F !important;
     }
-    /* Orange highlight when hovering over an item */
     li[role="option"]:hover, li[role="option"][aria-selected="true"] {
         background-color: #FF5722 !important; 
-        color: #FFFFFF !important;
-        -webkit-text-fill-color: #FFFFFF !important;
+        color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important;
     }
 
-    /* --- THE CALENDAR FIX (CRISP WHITE WITH NAVY TEXT) --- */
-    /* Force the calendar and its internal containers to be White */
-    div[data-baseweb="calendar"], div[data-baseweb="calendar"] div {
-        background-color: #FFFFFF !important; 
-    }
-    /* Force the days, dates, and month names to be Navy */
-    div[data-baseweb="calendar"] * { 
-        color: #0A192F !important; 
-    }
-    /* Make the selected date pop in Deep Orange with White Text */
+    div[data-baseweb="calendar"], div[data-baseweb="calendar"] div { background-color: #FFFFFF !important; }
+    div[data-baseweb="calendar"] * { color: #0A192F !important; }
     div[data-baseweb="calendar"] [aria-selected="true"],
     div[data-baseweb="calendar"] [aria-selected="true"] * {
         background-color: #FF5722 !important; 
-        color: #FFFFFF !important;
-        -webkit-text-fill-color: #FFFFFF !important;
+        color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important;
         font-weight: bold;
     }
-    /* Fix the little left/right month arrows to be Navy so you can see them */
-    div[data-baseweb="calendar"] svg { 
-        fill: #0A192F !important; 
-    }
+    div[data-baseweb="calendar"] svg { fill: #0A192F !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -292,15 +263,18 @@ if start_date and end_date:
                 
                 with st.form("booking_form"):
                     st.markdown("<h3 class='norwester-heading'>Customer Details</h3>", unsafe_allow_html=True)
-                    name = st.text_input("Full Name", placeholder=" ")
-                    email = st.text_input("Email Address", placeholder=" ")
+                    
+                    # ACTUAL text placed inside the placeholders now!
+                    name = st.text_input("Full Name", placeholder="Enter your full name")
+                    email = st.text_input("Email Address", placeholder="Enter your email address")
                     
                     st.divider()
                     st.markdown("<h3 class='norwester-heading'>Hire Agreement Verification</h3>", unsafe_allow_html=True)
                     st.markdown("Step 1. Click here to complete the **[Customer Hire Agreement](https://docs.google.com/forms/d/e/1FAIpQLSd2bfpED_4WQzpkR4BYuIfpc9V8V_GfKohniY83F-A3bSIMzw/viewform?usp=header)**.")
                     st.markdown("Step 2. After clicking submit on the agreement, copy the confirmation code shown on the screen and paste it below.")
                     
-                    agreement_code = st.text_input("Confirmation Code", placeholder=" ")
+                    # Code placeholder updated
+                    agreement_code = st.text_input("Confirmation Code", placeholder="Paste your code here")
                     submit = st.form_submit_button("Place on Hold")
                     
                     if submit:
@@ -329,16 +303,10 @@ if start_date and end_date:
                                 st.markdown("""
                                 <style>
                                     .sun-glow-orb {
-                                        position: fixed;
-                                        top: -150px;
-                                        left: 50%;
-                                        margin-left: -150px;
-                                        width: 300px;
-                                        height: 300px;
+                                        position: fixed; top: -150px; left: 50%; margin-left: -150px;
+                                        width: 300px; height: 300px;
                                         background: radial-gradient(circle, rgba(255,223,0,1) 0%, rgba(255,140,0,0.8) 40%, rgba(255,87,34,0) 70%);
-                                        border-radius: 50%;
-                                        z-index: 99999;
-                                        pointer-events: none;
+                                        border-radius: 50%; z-index: 99999; pointer-events: none;
                                         animation: riseAndGlow 3.5s ease-in-out forwards;
                                     }
                                     @keyframes riseAndGlow {
@@ -348,11 +316,9 @@ if start_date and end_date:
                                         100% { top: -250px; opacity: 0; transform: scale(2); }
                                     }
                                     .page-glow-overlay {
-                                        position: fixed;
-                                        top: 0; left: 0; right: 0; bottom: 0;
+                                        position: fixed; top: 0; left: 0; right: 0; bottom: 0;
                                         background-color: rgba(255, 220, 100, 0.2);
-                                        z-index: 99998;
-                                        pointer-events: none;
+                                        z-index: 99998; pointer-events: none;
                                         animation: flashGlow 3.5s ease-in-out forwards;
                                     }
                                     @keyframes flashGlow {
