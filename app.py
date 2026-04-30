@@ -83,7 +83,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- LOGO DISPLAY ---
-# This centers the image beautifully at the top
 colA, colB, colC = st.columns([1, 4, 1])
 with colB:
     try:
@@ -110,7 +109,7 @@ def load_inventory():
 try:
     inventory_df = load_inventory()
 except Exception as e:
-    st.error(f"Could not connect to Google Sheets. Please ensure your SHEET_URL is correct. Error: {e}")
+    st.error(f"Could not connect to Google Sheets. Please ensure your SHEET_URL is correct and the bot email is an Editor. Error: {e}")
     st.stop()
 
 # --- PACKAGE MAPPING ---
@@ -157,7 +156,6 @@ The Portable Solutions Team
         pass
 
 # --- FRONT END APP ---
-# Title simplified
 st.markdown("<div class='norwester-heading main-title'>Equipment Booking</div>", unsafe_allow_html=True)
 st.write("Confirm Availability and Place a hold on your gear! Availability is based on a first to pay basis. Please Complete the Customer Hire Agreement and Hire Terms below, your gear will then be placed on temporary hold for you for 24 hours. Shortly after completing the Hire Agreement you will be sent a Payment link to confirm the booking.")
 st.divider()
