@@ -12,12 +12,11 @@ from google.oauth2.service_account import Credentials
 st.set_page_config(page_title="Portable Solutions Equipment Booking", layout="centered")
 
 # PASTE YOUR GOOGLE SHEET LINK HERE:
-SHEET_URL = "https://docs.google.com/spreadsheets/d/1Wi25qD5JnjFBU2nnwYfCdu2Zu6NvzzYhDjS-dcdyO9k/edit?usp=sharing"
+SHEET_URL = "https://docs.google.com/spreadsheets/d/1lbOEvMT-5TjrMNqWiP_4qHAeL_zM0ghtNKngoTNEDVs/edit?usp=sharing"
 
 # PASTE YOUR NEW GITHUB LOGO IMAGE LINK HERE:
-LOGO_URL = "https://github.com/BenjaminBeitz/portable-solutions-booking/blob/main/logo.png?raw=true"
+LOGO_URL = "PASTE_YOUR_COPIED_IMAGE_ADDRESS_HERE"
 
-# --- BRAND STYLING & STICKY HEADER ---
 # --- BRAND STYLING & STICKY HEADER ---
 st.markdown("""
 <style>
@@ -104,18 +103,32 @@ st.markdown("""
     div[data-baseweb="select"] > div,
     div[data-baseweb="input"] {
         background-color: #FFFFFF !important; 
-        color: #0A192F !important;
+        color: #0A192F !important; 
+        -webkit-text-fill-color: #0A192F !important; /* Forces iOS/Safari to show the Navy text */
         border: 1px solid #0A192F !important;
         border-radius: 5px;
+        font-weight: 600; /* Makes the typed dates and names slightly bolder */
     }
 
-    /* Selected Gear Bubbles: Deep Navy with White Text */
+    /* Selected Gear Bubbles: Deep Navy Background */
     span[data-baseweb="tag"] {
         background-color: #0A192F !important;
+    }
+    
+    /* This strictly FORCES the text inside the equipment bubble to be White */
+    span[data-baseweb="tag"] span, 
+    span[data-baseweb="tag"] div, 
+    span[data-baseweb="tag"] p {
         color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
+    }
+    
+    /* This makes the little 'x' clear button inside the bubble White */
+    span[data-baseweb="tag"] svg {
+        fill: #FFFFFF !important;
     }
 
-    /* --- NEW: CALENDAR FIX --- */
+    /* --- CALENDAR FIX --- */
     /* Target the pop-up calendar box specifically */
     div[data-baseweb="calendar"] {
         background-color: #0A192F !important; /* Navy background */
