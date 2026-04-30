@@ -12,10 +12,10 @@ from google.oauth2.service_account import Credentials
 st.set_page_config(page_title="Portable Solutions Equipment Booking", layout="centered")
 
 # PASTE YOUR GOOGLE SHEET LINK HERE:
-SHEET_URL = "https://docs.google.com/spreadsheets/d/1Wi25qD5JnjFBU2nnwYfCdu2Zu6NvzzYhDjS-dcdyO9k/edit?usp=sharing"
+SHEET_URL = "https://docs.google.com/spreadsheets/d/1lbOEvMT-5TjrMNqWiP_4qHAeL_zM0ghtNKngoTNEDVs/edit?usp=sharing"
 
 # PASTE YOUR NEW RAW GITHUB LOGO IMAGE LINK HERE:
-LOGO_URL = "https://github.com/BenjaminBeitz/portable-solutions-booking/blob/main/logo.png?raw=true"
+LOGO_URL = "PASTE_YOUR_RAW_IMAGE_ADDRESS_HERE"
 
 # --- BRAND STYLING & STICKY HEADER ---
 st.markdown("""
@@ -117,6 +117,22 @@ st.markdown("""
     }
     span[data-baseweb="tag"] svg {
         fill: #FFFFFF !important;
+    }
+
+    /* --- NEW: DROPDOWN MENU LIST FIX --- */
+    /* Target the floating dropdown list background */
+    div[data-baseweb="popover"] div, ul[role="listbox"] {
+        background-color: #0A192F !important; /* Deep Navy Background */
+    }
+    /* Make the text white for the items */
+    li[role="option"] {
+        background-color: #0A192F !important;
+        color: #FFFFFF !important;
+    }
+    /* Orange highlight when hovering over an item */
+    li[role="option"]:hover, li[role="option"][aria-selected="true"] {
+        background-color: #FF5722 !important; 
+        color: #FFFFFF !important;
     }
 
     /* CALENDAR WIDGET: Navy popup, White dates */
