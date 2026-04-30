@@ -14,14 +14,18 @@ st.set_page_config(page_title="Portable Solutions Equipment Booking", layout="ce
 # PASTE YOUR GOOGLE SHEET LINK HERE:
 SHEET_URL = "https://docs.google.com/spreadsheets/d/1Wi25qD5JnjFBU2nnwYfCdu2Zu6NvzzYhDjS-dcdyO9k/edit?usp=sharing"
 # --- BRAND STYLING ---
+# --- BRAND STYLING ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=League+Spartan:wght@300;400;600&family=Oswald:wght@600&display=swap');
 
+    /* Changed from transparent to a clean, solid white background */
     html, body, [class*="css"], p, span, div, label, li {
         font-family: 'League Spartan', sans-serif !important;
-        background-color: transparent !important; 
+        background-color: #FFFFFF !important; 
+        color: #1E1E1E !important; /* Makes sure the text is a highly readable dark grey/black */
     }
+    
     .norwester-heading {
         font-family: 'Norwester', 'Oswald', sans-serif !important;
         text-transform: uppercase;
@@ -29,17 +33,19 @@ st.markdown("""
         margin-bottom: 0.5rem;
         margin-top: 1rem;
     }
+    
     .main-title {
         font-size: 2.5rem;
         font-weight: bold;
         text-align: center;
         margin-bottom: 1rem;
     }
+    
     .stButton>button {
         font-family: 'League Spartan', sans-serif !important;
         font-weight: 600;
         background-color: #FF5722; /* Deep Orange */
-        color: white;
+        color: white !important;
         border-radius: 5px;
     }
 </style>
