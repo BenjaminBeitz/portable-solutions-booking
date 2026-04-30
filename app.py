@@ -12,25 +12,25 @@ from google.oauth2.service_account import Credentials
 st.set_page_config(page_title="Portable Solutions Equipment Booking", layout="centered")
 
 # PASTE YOUR GOOGLE SHEET LINK HERE:
-SHEET_URL = "https://docs.google.com/spreadsheets/d/1Wi25qD5JnjFBU2nnwYfCdu2Zu6NvzzYhDjS-dcdyO9k/edit?usp=sharing"
-# --- BRAND STYLING ---
+https://docs.google.com/forms/d/e/1FAIpQLSd2bfpED_4WQzpkR4BYuIfpc9V8V_GfKohniY83F-A3bSIMzw/viewform?usp=header
+
 # --- BRAND STYLING ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=League+Spartan:wght@300;400;600&family=Oswald:wght@600&display=swap');
 
-    /* 1. Deep Orange Background for the entire app */
+    /* Deep Orange Background */
     .stApp, html, body {
-        background-color: #FF5722 !important; /* Deep Orange */
+        background-color: #FF5722 !important; 
     }
     
-    /* 2. Deep Navy Blue for ALL standard text */
+    /* Deep Navy Blue for ALL standard text */
     html, body, [class*="css"], p, span, div, label, li {
         font-family: 'League Spartan', sans-serif !important;
-        color: #0A192F !important; /* Deep Navy Blue */
+        color: #0A192F !important; 
     }
     
-    /* 3. Norwester Headings in Deep Navy Blue */
+    /* Norwester Headings */
     .norwester-heading {
         font-family: 'Norwester', 'Oswald', sans-serif !important;
         text-transform: uppercase;
@@ -47,33 +47,34 @@ st.markdown("""
         color: #0A192F !important;
     }
     
-    /* 4. White Features (The Button) */
+    /* White Buttons with Navy Text */
     .stButton>button {
         font-family: 'League Spartan', sans-serif !important;
         font-weight: 800;
-        background-color: #FFFFFF !important; /* White Button */
-        color: #0A192F !important; /* Navy text on the button */
+        background-color: #FFFFFF !important; 
+        color: #0A192F !important; 
         border: 2px solid #0A192F !important;
         border-radius: 5px;
     }
     
-    /* Optional: Makes the button flip colors when hovered over */
     .stButton>button:hover {
         background-color: #0A192F !important;
         color: #FFFFFF !important;
         border-color: #FFFFFF !important;
     }
 
-    /* 5. White Features (Input Boxes and Dropdowns) */
+    /* White Features (Input Boxes and Dropdowns) */
     .stTextInput>div>div>input, 
     .stDateInput>div>div>input,
-    div[data-baseweb="select"] > div {
-        background-color: #FFFFFF !important; /* White boxes so you can read typing */
+    div[data-baseweb="select"] > div,
+    div[data-baseweb="input"] {
+        background-color: #FFFFFF !important; 
         color: #0A192F !important;
         border: 1px solid #0A192F !important;
+        border-radius: 5px;
     }
 
-    /* Ensures the selected items in the dropdown are Navy with White text so they pop */
+    /* Selected Gear Bubbles: Deep Navy with White Text */
     span[data-baseweb="tag"] {
         background-color: #0A192F !important;
         color: #FFFFFF !important;
@@ -81,35 +82,35 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-try:
-    st.image("logo.png", width=250) 
-except:
-    pass
+# --- LOGO DISPLAY ---
+# This centers the image beautifully at the top
+colA, colB, colC = st.columns([1, 4, 1])
+with colB:
+    try:
+        st.image("logo.png", use_container_width=True) 
+    except:
+        pass
 
 # --- LIVE GOOGLE SHEETS CONNECTION ---
-# This function logs into Google, opens your sheet, and pulls the live data
 def get_live_sheet():
     creds_dict = json.loads(st.secrets["GCP_JSON"])
     scopes = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
     creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)
     client = gspread.authorize(creds)
-    
-    # Opens the first tab of your Google Sheet
     sheet = client.open_by_url(SHEET_URL).sheet1
     return sheet
 
-@st.cache_data(ttl=30) # Refreshes the snapshot every 30 seconds to catch live changes
+@st.cache_data(ttl=30) 
 def load_inventory():
     sheet = get_live_sheet()
     data = sheet.get_all_values()
-    # Grabs row 3 as titles, and row 4 downwards as the data
     df = pd.DataFrame(data[3:], columns=data[2])
     return df
 
 try:
     inventory_df = load_inventory()
 except Exception as e:
-    st.error(f"Could not connect to Google Sheets. Please ensure your SHEET_URL is correct and the bot email is shared as an Editor. Error: {e}")
+    st.error(f"Could not connect to Google Sheets. Please ensure your SHEET_URL is correct. Error: {e}")
     st.stop()
 
 # --- PACKAGE MAPPING ---
@@ -156,7 +157,8 @@ The Portable Solutions Team
         pass
 
 # --- FRONT END APP ---
-st.markdown("<div class='norwester-heading main-title'>Portable Solutions - Equipment Booking</div>", unsafe_allow_html=True)
+# Title simplified
+st.markdown("<div class='norwester-heading main-title'>Equipment Booking</div>", unsafe_allow_html=True)
 st.write("Confirm Availability and Place a hold on your gear! Availability is based on a first to pay basis. Please Complete the Customer Hire Agreement and Hire Terms below, your gear will then be placed on temporary hold for you for 24 hours. Shortly after completing the Hire Agreement you will be sent a Payment link to confirm the booking.")
 st.divider()
 
@@ -233,14 +235,10 @@ if start_date and end_date:
                             try:
                                 live_sheet = get_live_sheet()
                                 for item, unit_id in available_units:
-                                    # Tells the bot to find the exact Unit ID cell on your sheet
                                     cell = live_sheet.find(unit_id)
-                                    # Updates Column 4 (Status) to Booked
                                     live_sheet.update_cell(cell.row, 4, "Booked")
-                                    # Updates Column 5 (Date) to the end date
                                     live_sheet.update_cell(cell.row, 5, end_date.strftime("%d/%m/%Y"))
                                 
-                                # Clears the app's cache so it instantly pulls the new 'Booked' data
                                 st.cache_data.clear()
                                 
                                 st.success("Gear Placed on Hold!")
@@ -250,7 +248,48 @@ if start_date and end_date:
                                     st.write(f"- {item} (Unit ID: {unit_id})")
                                     
                                 st.write("We will review your Hire Agreement and send a payment link to your email shortly.")
-                                st.balloons()
+                                
+                                # --- CUSTOM SUN GLOW ANIMATION ---
+                                st.markdown("""
+                                <style>
+                                    .sun-glow-orb {
+                                        position: fixed;
+                                        top: -150px;
+                                        left: 50%;
+                                        margin-left: -150px;
+                                        width: 300px;
+                                        height: 300px;
+                                        background: radial-gradient(circle, rgba(255,223,0,1) 0%, rgba(255,140,0,0.8) 40%, rgba(255,87,34,0) 70%);
+                                        border-radius: 50%;
+                                        z-index: 99999;
+                                        pointer-events: none;
+                                        animation: riseAndGlow 3.5s ease-in-out forwards;
+                                    }
+                                    @keyframes riseAndGlow {
+                                        0% { top: -150px; opacity: 0; transform: scale(0.5); }
+                                        30% { top: -50px; opacity: 1; transform: scale(1.5); box-shadow: 0 0 250px 150px rgba(255, 200, 0, 0.5); }
+                                        70% { top: -50px; opacity: 1; transform: scale(1.5); box-shadow: 0 0 250px 150px rgba(255, 200, 0, 0.5); }
+                                        100% { top: -250px; opacity: 0; transform: scale(2); }
+                                    }
+                                    .page-glow-overlay {
+                                        position: fixed;
+                                        top: 0; left: 0; right: 0; bottom: 0;
+                                        background-color: rgba(255, 220, 100, 0.2);
+                                        z-index: 99998;
+                                        pointer-events: none;
+                                        animation: flashGlow 3.5s ease-in-out forwards;
+                                    }
+                                    @keyframes flashGlow {
+                                        0% { opacity: 0; }
+                                        30% { opacity: 1; }
+                                        70% { opacity: 1; }
+                                        100% { opacity: 0; }
+                                    }
+                                </style>
+                                <div class="sun-glow-orb"></div>
+                                <div class="page-glow-overlay"></div>
+                                """, unsafe_allow_html=True)
+                                
                                 send_confirmation_email(name, email)
                             
                             except Exception as e:
