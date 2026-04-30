@@ -12,10 +12,10 @@ from google.oauth2.service_account import Credentials
 st.set_page_config(page_title="Portable Solutions Equipment Booking", layout="centered")
 
 # PASTE YOUR GOOGLE SHEET LINK HERE:
-SHEET_URL = "https://docs.google.com/spreadsheets/d/1Wi25qD5JnjFBU2nnwYfCdu2Zu6NvzzYhDjS-dcdyO9k/edit?usp=sharing"
+SHEET_URL = "https://docs.google.com/spreadsheets/d/1lbOEvMT-5TjrMNqWiP_4qHAeL_zM0ghtNKngoTNEDVs/edit?usp=sharing"
 
-# PASTE YOUR NEW GITHUB LOGO IMAGE LINK HERE:
-LOGO_URL = "https://github.com/BenjaminBeitz/portable-solutions-booking/blob/main/logo.png?raw=true"
+# PASTE YOUR NEW RAW GITHUB LOGO IMAGE LINK HERE:
+LOGO_URL = "PASTE_YOUR_RAW_IMAGE_ADDRESS_HERE"
 
 # --- BRAND STYLING & STICKY HEADER ---
 st.markdown("""
@@ -43,28 +43,16 @@ st.markdown("""
         max-width: 90%;
     }
 
-    /* 2. Push the app down so the form doesn't hide behind the sticky header */
-    .block-container {
-        padding-top: 120px !important; 
-    }
-    
-    /* 3. Hide Streamlit's default top white line */
-    header[data-testid="stHeader"] {
-        display: none !important;
-    }
+    .block-container { padding-top: 120px !important; }
+    header[data-testid="stHeader"] { display: none !important; }
 
-    /* Deep Orange Background */
-    .stApp, html, body {
-        background-color: #FF5722 !important; 
-    }
-    
-    /* Deep Navy Blue for ALL standard text */
+    /* Deep Orange Background & Global Navy Text */
+    .stApp, html, body { background-color: #FF5722 !important; }
     html, body, [class*="css"], p, span, div, label, li {
         font-family: 'League Spartan', sans-serif !important;
         color: #0A192F !important; 
     }
     
-    /* Norwester Headings */
     .norwester-heading {
         font-family: 'Norwester', 'Oswald', sans-serif !important;
         text-transform: uppercase;
@@ -81,78 +69,73 @@ st.markdown("""
         color: #0A192F !important;
     }
     
-    /* White Buttons with Navy Text */
+    /* --- THE AUDITED COLOR RULES --- */
+
+    /* ACTION BUTTONS: Initial White -> Flip to Navy on Action */
     .stButton>button {
-        font-family: 'League Spartan', sans-serif !important;
-        font-weight: 800;
         background-color: #FFFFFF !important; 
         color: #0A192F !important; 
         border: 2px solid #0A192F !important;
         border-radius: 5px;
+        font-weight: 800;
     }
-    
-    .stButton>button:hover {
+    .stButton>button p {
+        color: #0A192F !important; 
+    }
+    .stButton>button:hover, .stButton>button:active {
         background-color: #0A192F !important;
+        border-color: #0A192F !important;
+    }
+    .stButton>button:hover p, .stButton>button:active p {
         color: #FFFFFF !important;
-        border-color: #FFFFFF !important;
     }
 
-    /* White Features (Input Boxes and Dropdowns) */
-    .stTextInput>div>div>input, 
-    .stDateInput>div>div>input,
-    div[data-baseweb="select"] > div,
-    div[data-baseweb="input"] {
+    /* INPUT BOXES INITIAL STATE: White background, Navy text */
+    .stTextInput input, .stDateInput input, div[data-baseweb="select"] > div {
         background-color: #FFFFFF !important; 
         color: #0A192F !important; 
-        -webkit-text-fill-color: #0A192F !important; /* Forces iOS/Safari to show the Navy text */
-        border: 1px solid #0A192F !important;
+        -webkit-text-fill-color: #0A192F !important; 
+        border: 2px solid #0A192F !important;
         border-radius: 5px;
-        font-weight: 600; /* Makes the typed dates and names slightly bolder */
+        font-weight: 600; 
     }
 
-    /* Selected Gear Bubbles: Deep Navy Background */
-    span[data-baseweb="tag"] {
+    /* TEXT INPUT FILLED STATE: Flip to Navy background, White text */
+    .stTextInput input:not(:placeholder-shown) {
         background-color: #0A192F !important;
-    }
-    
-    /* This strictly FORCES the text inside the equipment bubble to be White */
-    span[data-baseweb="tag"] span, 
-    span[data-baseweb="tag"] div, 
-    span[data-baseweb="tag"] p {
         color: #FFFFFF !important;
         -webkit-text-fill-color: #FFFFFF !important;
     }
-    
-    /* This makes the little 'x' clear button inside the bubble White */
+
+    /* SELECTED GEAR BUBBLES: Strictly Navy with White Text */
+    span[data-baseweb="tag"] {
+        background-color: #0A192F !important;
+    }
+    span[data-baseweb="tag"] span {
+        color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
+    }
     span[data-baseweb="tag"] svg {
         fill: #FFFFFF !important;
     }
 
-    /* --- CALENDAR FIX --- */
-    /* Target the pop-up calendar box specifically */
+    /* CALENDAR WIDGET: Navy popup, White dates */
     div[data-baseweb="calendar"] {
-        background-color: #0A192F !important; /* Navy background */
+        background-color: #0A192F !important; 
         padding: 5px;
         border-radius: 8px;
     }
-    /* Force the days and dates to be white */
-    div[data-baseweb="calendar"] * {
-        color: #FFFFFF !important; 
-    }
-    /* Make the selected date pop in Deep Orange */
+    div[data-baseweb="calendar"] * { color: #FFFFFF !important; }
     div[data-baseweb="calendar"] [aria-selected="true"] {
         background-color: #FF5722 !important; 
         color: #FFFFFF !important;
         font-weight: bold;
     }
-    /* Fix the little left/right month arrows */
-    div[data-baseweb="calendar"] svg {
-        fill: #FFFFFF !important;
-    }
+    div[data-baseweb="calendar"] svg { fill: #FFFFFF !important; }
 </style>
 """, unsafe_allow_html=True)
 
-# This physically places the sticky header at the top of the app using your Logo URL
+# --- LOGO RENDER ---
 st.markdown(f"""
 <div class="sticky-header">
     <img src="{LOGO_URL}" alt="Portable Solutions Logo">
@@ -283,15 +266,16 @@ if start_date and end_date:
                 
                 with st.form("booking_form"):
                     st.markdown("<h3 class='norwester-heading'>Customer Details</h3>", unsafe_allow_html=True)
-                    name = st.text_input("Full Name")
-                    email = st.text_input("Email Address")
+                    # Notice the placeholder=" " trick added here!
+                    name = st.text_input("Full Name", placeholder=" ")
+                    email = st.text_input("Email Address", placeholder=" ")
                     
                     st.divider()
                     st.markdown("<h3 class='norwester-heading'>Hire Agreement Verification</h3>", unsafe_allow_html=True)
                     st.markdown("Step 1. Click here to complete the **[Customer Hire Agreement](https://docs.google.com/forms/d/e/1FAIpQLSd2bfpED_4WQzpkR4BYuIfpc9V8V_GfKohniY83F-A3bSIMzw/viewform?usp=header)**.")
                     st.markdown("Step 2. After clicking submit on the agreement, copy the confirmation code shown on the screen and paste it below.")
                     
-                    agreement_code = st.text_input("Confirmation Code")
+                    agreement_code = st.text_input("Confirmation Code", placeholder=" ")
                     submit = st.form_submit_button("Place on Hold")
                     
                     if submit:
