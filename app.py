@@ -12,10 +12,10 @@ from google.oauth2.service_account import Credentials
 st.set_page_config(page_title="Portable Solutions Equipment Booking", layout="centered")
 
 # PASTE YOUR GOOGLE SHEET LINK HERE:
-SHEET_URL = "https://docs.google.com/spreadsheets/d/1Wi25qD5JnjFBU2nnwYfCdu2Zu6NvzzYhDjS-dcdyO9k/edit?usp=sharing"
+SHEET_URL = "https://docs.google.com/spreadsheets/d/1lbOEvMT-5TjrMNqWiP_4qHAeL_zM0ghtNKngoTNEDVs/edit?usp=sharing"
 
 # PASTE YOUR NEW RAW GITHUB LOGO IMAGE LINK HERE:
-LOGO_URL = "https://github.com/BenjaminBeitz/portable-solutions-booking/blob/main/logo.png?raw=true"
+LOGO_URL = "PASTE_YOUR_RAW_IMAGE_ADDRESS_HERE"
 
 # --- BRAND STYLING & STICKY HEADER ---
 st.markdown("""
@@ -137,19 +137,27 @@ st.markdown("""
         -webkit-text-fill-color: #FFFFFF !important;
     }
 
-    /* CALENDAR WIDGET: Navy popup, White dates */
-    div[data-baseweb="calendar"] {
-        background-color: #0A192F !important; 
-        padding: 5px;
-        border-radius: 8px;
+    /* --- THE CALENDAR FIX (CRISP WHITE WITH NAVY TEXT) --- */
+    /* Force the calendar and its internal containers to be White */
+    div[data-baseweb="calendar"], div[data-baseweb="calendar"] div {
+        background-color: #FFFFFF !important; 
     }
-    div[data-baseweb="calendar"] * { color: #FFFFFF !important; }
-    div[data-baseweb="calendar"] [aria-selected="true"] {
+    /* Force the days, dates, and month names to be Navy */
+    div[data-baseweb="calendar"] * { 
+        color: #0A192F !important; 
+    }
+    /* Make the selected date pop in Deep Orange with White Text */
+    div[data-baseweb="calendar"] [aria-selected="true"],
+    div[data-baseweb="calendar"] [aria-selected="true"] * {
         background-color: #FF5722 !important; 
         color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
         font-weight: bold;
     }
-    div[data-baseweb="calendar"] svg { fill: #FFFFFF !important; }
+    /* Fix the little left/right month arrows to be Navy so you can see them */
+    div[data-baseweb="calendar"] svg { 
+        fill: #0A192F !important; 
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -284,7 +292,6 @@ if start_date and end_date:
                 
                 with st.form("booking_form"):
                     st.markdown("<h3 class='norwester-heading'>Customer Details</h3>", unsafe_allow_html=True)
-                    # Notice the placeholder=" " trick added here!
                     name = st.text_input("Full Name", placeholder=" ")
                     email = st.text_input("Email Address", placeholder=" ")
                     
