@@ -12,10 +12,10 @@ from google.oauth2.service_account import Credentials
 st.set_page_config(page_title="Portable Solutions Equipment Booking", layout="centered")
 
 # PASTE YOUR GOOGLE SHEET LINK HERE:
-SHEET_URL = "https://docs.google.com/spreadsheets/d/1Wi25qD5JnjFBU2nnwYfCdu2Zu6NvzzYhDjS-dcdyO9k/edit?usp=sharing"
+SHEET_URL = "https://docs.google.com/spreadsheets/d/1lbOEvMT-5TjrMNqWiP_4qHAeL_zM0ghtNKngoTNEDVs/edit?usp=sharing"
 
 # PASTE YOUR NEW RAW GITHUB LOGO IMAGE LINK HERE:
-LOGO_URL = "https://github.com/BenjaminBeitz/portable-solutions-booking/blob/main/logo.png?raw=true"
+LOGO_URL = "PASTE_YOUR_RAW_IMAGE_ADDRESS_HERE"
 
 # --- BRAND STYLING & STICKY HEADER ---
 st.markdown("""
@@ -56,24 +56,20 @@ st.markdown("""
     }
 
     /* --- BULLETPROOF ACTION BUTTONS --- */
-    /* Target every possible button layer */
     .stButton > button, div[data-testid="stFormSubmitButton"] > button {
         background-color: #FFFFFF !important; 
         border: 2px solid #0A192F !important;
         border-radius: 5px;
     }
-    /* Force inner text to be Navy */
     .stButton > button *, div[data-testid="stFormSubmitButton"] > button * {
         color: #0A192F !important; 
         font-weight: 800 !important;
     }
-    /* Hover State: Flip to Navy Background */
     .stButton > button:hover, .stButton > button:active, 
     div[data-testid="stFormSubmitButton"] > button:hover, div[data-testid="stFormSubmitButton"] > button:active {
         background-color: #0A192F !important;
         border-color: #0A192F !important;
     }
-    /* Hover State: Flip inner text to White */
     .stButton > button:hover *, .stButton > button:active *,
     div[data-testid="stFormSubmitButton"] > button:hover *, div[data-testid="stFormSubmitButton"] > button:active * {
         color: #FFFFFF !important;
@@ -88,14 +84,10 @@ st.markdown("""
         color: #0A192F !important; 
         -webkit-text-fill-color: #0A192F !important; 
     }
-    
-    /* The explicitly visible placeholder text (Before they type) */
     .stTextInput input::placeholder {
-        color: rgba(10, 25, 47, 0.7) !important; /* Slightly faded Navy */
+        color: rgba(10, 25, 47, 0.7) !important; 
         -webkit-text-fill-color: rgba(10, 25, 47, 0.7) !important;
     }
-
-    /* Filled State: When they actually type something */
     .stTextInput input:not(:placeholder-shown) {
         background-color: #0A192F !important;
         color: #FFFFFF !important;
@@ -209,17 +201,29 @@ st.markdown("<div class='norwester-heading main-title'>Equipment Booking</div>",
 st.write("Confirm Availability and Place a hold on your gear! Availability is based on a first to pay basis. Please Complete the Customer Hire Agreement and Hire Terms below, your gear will then be placed on temporary hold for you for 24 hours. Shortly after completing the Hire Agreement you will be sent a Payment link to confirm the booking.")
 st.divider()
 
+# --- DATE & TIME SELECTORS ---
 col1, col2 = st.columns(2)
 with col1:
     start_date = st.date_input("Start Date")
+    start_time = st.selectbox("Pick-up Time", ["Morning", "Afternoon"])
 with col2:
     end_date = st.date_input("End Date")
+    end_time = st.selectbox("Drop-off Time", ["Morning", "Afternoon"])
+
+# Disclaimer below the dates
+st.markdown("<p style='font-size: 1rem; font-weight: 600; text-align: center; color: #0A192F;'>*Hire periods are calculated in 24-hour blocks. Hiring from Morning to Afternoon incurs an additional day rate.</p>", unsafe_allow_html=True)
 
 if start_date and end_date:
+    # Base calculation
     hire_days = (end_date - start_date).days
     
+    # 24hr Block Logic Update
+    if start_time == "Morning" and end_time == "Afternoon":
+        hire_days += 1
+
+    # Validation check
     if hire_days <= 0:
-        st.error("End date must be after the start date.")
+        st.error("Invalid Selection: Your drop-off date/time must be after your pick-up date/time.")
     else:
         st.success(f"**Total Hire Duration:** {hire_days} days")
         
@@ -264,7 +268,6 @@ if start_date and end_date:
                 with st.form("booking_form"):
                     st.markdown("<h3 class='norwester-heading'>Customer Details</h3>", unsafe_allow_html=True)
                     
-                    # ACTUAL text placed inside the placeholders now!
                     name = st.text_input("Full Name", placeholder="Enter your full name")
                     email = st.text_input("Email Address", placeholder="Enter your email address")
                     
@@ -273,7 +276,6 @@ if start_date and end_date:
                     st.markdown("Step 1. Click here to complete the **[Customer Hire Agreement](https://docs.google.com/forms/d/e/1FAIpQLSd2bfpED_4WQzpkR4BYuIfpc9V8V_GfKohniY83F-A3bSIMzw/viewform?usp=header)**.")
                     st.markdown("Step 2. After clicking submit on the agreement, copy the confirmation code shown on the screen and paste it below.")
                     
-                    # Code placeholder updated
                     agreement_code = st.text_input("Confirmation Code", placeholder="Paste your code here")
                     submit = st.form_submit_button("Place on Hold")
                     
@@ -287,6 +289,7 @@ if start_date and end_date:
                                 for item, unit_id in available_units:
                                     cell = live_sheet.find(unit_id)
                                     live_sheet.update_cell(cell.row, 4, "Booked")
+                                    # Write the date back to the Google Sheet
                                     live_sheet.update_cell(cell.row, 5, end_date.strftime("%d/%m/%Y"))
                                 
                                 st.cache_data.clear()
