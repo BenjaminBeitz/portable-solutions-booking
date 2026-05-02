@@ -12,10 +12,10 @@ from google.oauth2.service_account import Credentials
 st.set_page_config(page_title="Portable Solutions Equipment Booking", layout="centered")
 
 # PASTE YOUR GOOGLE SHEET LINK HERE:
-SHEET_URL = "https://docs.google.com/spreadsheets/d/1lbOEvMT-5TjrMNqWiP_4qHAeL_zM0ghtNKngoTNEDVs/edit?usp=sharing"
+SHEET_URL = "https://docs.google.com/spreadsheets/d/1Wi25qD5JnjFBU2nnwYfCdu2Zu6NvzzYhDjS-dcdyO9k/edit?usp=sharing"
 
 # PASTE YOUR NEW RAW GITHUB LOGO IMAGE LINK HERE:
-LOGO_URL = "PASTE_YOUR_RAW_IMAGE_ADDRESS_HERE"
+LOGO_URL = "https://github.com/BenjaminBeitz/portable-solutions-booking/blob/main/logo.png?raw=true"
 
 # --- BRAND STYLING & STICKY HEADER ---
 st.markdown("""
